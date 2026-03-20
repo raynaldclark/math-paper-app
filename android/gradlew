@@ -1,0 +1,5 @@
+#!/bin/bash
+DIRNAME=$(dirname "$0")
+APP_NAME="Gradle"
+APP_BASE_NAME=$(basename "$0")
+exec "$DIRNAME/gradlew" "$@"
