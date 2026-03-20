@@ -10,44 +10,50 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
-    
-    env:
-      PUB_HOSTED_URL: https://pub.flutter-io.cn
-      FLUTTER_STORAGE_BASE_URL: https://storage.flutter-io.cn
-    
+
     steps:
       - uses: actions/checkout@v4
-      
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
-          cache-dependency-path: pubspec.lock
-      
-      - name: Cache pub dependencies
+
+      - name: Cache Gradle
         uses: actions/cache@v3
         with:
           path: |
-            ~/.pub-cache
             ~/.gradle/caches
-          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
           restore-keys: |
-            ${{ runner.os }}-flutter-
-      
+            ${{ runner.os }}-gradle-
+
+      - name: Cache pub dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.pub-cache
+          key: ${{ runner.os }}-pub-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-pub-
+
+      - name: Remove local mirror config (not needed in CI)
+        run: rm -f gradle/init.d/maven.gradle
+
       - name: Install dependencies
         run: flutter pub get
-      
+
       - name: Build debug APK
         run: flutter build apk --debug -v
-      
+
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: math-paper-app
           path: build/app/outputs/flutter-apk/app-debug.apk
-      
+
       - name: Create Release
         if: github.ref == 'refs/heads/main'
         uses: softprops/action-gh-release@v1
