@@ -20,11 +20,19 @@ jobs:
           flutter-version: '3.24.0'
           channel: 'stable'
           cache: true
+          cache-dependency-path: pubspec.lock
+      
+      - name: Cache pub dependencies
+        uses: actions/cache@v3
+        with:
+          path: |
+            ~/.pub-cache
+            ~/.gradle/caches
+          key: ${{ runner.os }}-flutter-${{ hashFiles('**/pubspec.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-flutter-
       
       - name: Install dependencies
-        run: flutter pub get
-      
-      - name: Get dependencies
         run: flutter pub get
       
       - name: Build debug APK
