@@ -1,0 +1,52 @@
+name: Build Android APK
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Clone Flutter SDK
+        uses: actions/checkout@v4
+        with:
+          repository: flutter/flutter
+          ref: stable
+          fetch-depth: 0
+          path: flutter
+      
+      - name: Setup Flutter
+        run: |
+          echo "${{ github.workspace }}/flutter/bin" >> $GITHUB_PATH
+          flutter precache
+          flutter --version
+      
+      - name: Install dependencies
+        run: flutter pub get
+      
+      - name: Get dependencies
+        run: flutter pub get
+      
+      - name: Build debug APK
+        run: flutter build apk --debug
+      
+      - name: Upload APK artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: math-paper-app
+          path: build/app/outputs/flutter-apk/app-debug.apk
+      
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v1
+        with:
+          files: build/app/outputs/flutter-apk/app-debug.apk
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
