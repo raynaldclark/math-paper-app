@@ -14,19 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Clone Flutter SDK
-        uses: actions/checkout@v4
-        with:
-          repository: flutter/flutter
-          ref: stable
-          fetch-depth: 0
-          path: flutter
-      
       - name: Setup Flutter
-        run: |
-          echo "${{ github.workspace }}/flutter/bin" >> $GITHUB_PATH
-          flutter precache
-          flutter --version
+        uses: subosito/flutter-action@v2
+        with:
+          flutter-version: '3.24.0'
+          channel: 'stable'
+          cache: true
       
       - name: Install dependencies
         run: flutter pub get
