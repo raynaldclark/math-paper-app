@@ -14,6 +14,12 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'temurin'
+
       - name: Setup Flutter
         uses: subosito/flutter-action@v2
         with:
@@ -39,14 +45,14 @@ jobs:
           restore-keys: |
             ${{ runner.os }}-pub-
 
-      - name: Remove local mirror config (not needed in CI)
+      - name: Remove local mirror config
         run: rm -f gradle/init.d/maven.gradle
 
       - name: Install dependencies
         run: flutter pub get
 
       - name: Build debug APK
-        run: flutter build apk --debug -v
+        run: flutter build apk --debug
 
       - name: Upload APK artifact
         uses: actions/upload-artifact@v4
